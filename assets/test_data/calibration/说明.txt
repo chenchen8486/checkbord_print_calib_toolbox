@@ -1,0 +1,1 @@
+　　验收采图不复制到本工程。测试和命令行应通过 ini 的 input_dir 指向 D:\project\c++\Calibrate_and_Measure\assets\test_data\calibration，文件顺序以 tests/fixtures/calibration_manifest.txt 为准。

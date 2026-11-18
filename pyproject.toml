@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "checkbord_print_calib_toolbox"
+version = "1.0.0"
+description = "棋盘格制板与相机标定工具箱"
+requires-python = ">=3.10,<3.12"
+dependencies = [
+    "opencv-python==4.8.0.76",
+    "numpy==1.26.4",
+    "reportlab==4.4.10",
+    "pillow==13.0.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest==8.3.5"]
+
+[project.scripts]
+checkbord-toolbox = "checkbord_print_calib_toolbox.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
