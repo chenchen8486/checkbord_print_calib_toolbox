@@ -3,7 +3,8 @@
 本工程用于生成棋盘格打印文件，并对相机进行标定。
 
 - 包名：`checkbord_print_calib_toolbox`
-- 命令：`checkbord-toolbox`
+- 日常入口：发行目录中的 `CheckbordToolbox.exe`，或工程根目录的 `run.py` 菜单
+- 命令：`checkbord-toolbox`（可选）
 - 版本：`1.0.0`
 - 环境：Windows 10/11，CPython 3.10 / 3.11（建议 3.11）
 
@@ -26,6 +27,8 @@
 1. **制板**：按 `config.ini` 生成打印三件套（矢量 PDF、预览图、打印说明）。
 2. **标定**：对 1 张或多张同一姿态的棋盘格图像求解相机内参和畸变，并写出可供后续使用的 XML。
 
+日常使用时，双击发行程序或根目录菜单即可，不必输入命令。命令行和 Python 接口仍然保留。
+
 ## 2. 工程结构
 
 ```text
@@ -34,6 +37,10 @@ checkbord_print_calib_toolbox/
 ├── config.ini                          # 出厂配置
 ├── pyproject.toml
 ├── requirements.txt
+├── run.py                              # 控制台菜单（本地）
+├── run.bat                             # 用 .venv 启动菜单
+├── build.bat                           # 打包发行程序
+├── CheckbordToolbox.spec
 ├── assets/
 │   ├── checkerboard/                   # 制板输出目录（出厂示例已生成）
 │   │   ├── checkerboard.pdf            # 矢量打印文件，仅此文件用于印刷
@@ -70,12 +77,39 @@ pip install -e .
 1. 依赖只安装到独立虚拟环境，不要装到系统 Python。
 2. 运行时依赖为 OpenCV 4.8.0、NumPy 1.26.4、reportlab 4.4.10、Pillow 13.0.0，以 `requirements.txt` 为准。
 3. 不要将 OpenCV 升级到 5.x，也不要安装 `opencv-contrib-python`。
+4. 打包发行程序时，可先执行 `pip install -e ".[pack]"`，再双击 `build.bat`。若尚未安装 PyInstaller，`build.bat` 也会在 `.venv` 内安装后再打包。
 
 ## 4. 快速运行 Demo
 
-安装并激活虚拟环境后，在工程根目录执行下面两个示例。
+推荐使用控制台菜单，不必输入命令。
 
-### 4.1 生成打印三件套
+### 4.1 用发行程序（推荐）
+
+先双击工程根目录的 `build.bat`，等待打包完成。然后进入 `dist\CheckbordToolbox\`，双击 `CheckbordToolbox.exe`。
+
+请复制整个 `CheckbordToolbox` 目录使用，不要只拷贝 exe，也不要删除 `_internal`。`config.ini` 与 exe 放在同一目录；改完配置后，可用菜单第 3 项重新加载。
+
+菜单项：
+
+1. 生成棋盘格制板文件
+2. 相机标定
+3. 重新加载配置文件
+
+其他输入则退出。关闭窗口前会等待回车。
+
+制板输出在 exe 同级的 `assets\checkerboard\`。标定前请把图像放到 `assets\test_data\calibration\`，结果 XML 写到 `assets\calibration\`，QA 质量检查图写到 `temp\calibration_qa\`。
+
+重新打包时，再次双击工程根目录的 `build.bat`。
+
+### 4.2 在工程里直接运行菜单
+
+完成第 3 节的安装后，双击工程根目录的 `run.py`，或双击 `run.bat`（使用 `.venv` 启动同一菜单）。菜单项与发行程序相同，路径相对于工程根目录。
+
+### 4.3 用命令行运行（可选）
+
+安装并激活虚拟环境后，也可以在工程根目录执行下面两个示例。
+
+生成打印三件套：
 
 ```bat
 checkbord-toolbox make-board --ini config.ini
@@ -95,9 +129,7 @@ python -m checkbord_print_calib_toolbox make-board --ini config.ini
 
 打印时请使用 **100% 实际尺寸**，关闭「适应页面」「适合纸张」和自动缩放。
 
-### 4.2 相机标定
-
-先将标定图像放到 `assets/test_data/calibration/`，或使用 `--image` 直接指定文件。建议同机位连拍 3～5 张，单张也可求解。连拍期间相机、镜头和标定板都必须保持静止。
+相机标定：先将标定图像放到 `assets/test_data/calibration/`，或使用 `--image` 直接指定文件。建议同机位连拍 3～5 张，单张也可求解。连拍期间相机、镜头和标定板都必须保持静止。
 
 从 ini 的 `input_dir` 读图：
 
@@ -115,9 +147,11 @@ checkbord-toolbox calibrate --ini config.ini --image first.bmp second.bmp third.
 
 采图时，机位、镜头和分辨率须与后续正式使用一致，标定板须吸风展平，并使用与生产相同的光源和工作距离。尽量让标定板充满画面，四周静区完整可见。
 
+菜单运行时，制板与标定的产物内容和质量门禁与命令行相同。
+
 ## 5. 配置说明
 
-所有接口都要显式传入 ini 路径。ini 使用 UTF-8（可带 BOM），支持 `#`、`;` 行注释和行尾注释。相对路径一律相对 ini 所在目录。
+所有接口都要显式传入 ini 路径。ini 使用 UTF-8（可带 BOM），支持 `#`、`;` 行注释和行尾注释。相对路径一律相对 ini 所在目录。菜单会读取与 exe 或 `run.py` 同目录的 `config.ini`。
 
 随包 `config.ini` 只有三段：`[checkerboard]`、`[calibrate]`、`[debug]`。
 
@@ -173,7 +207,7 @@ ok, err, report = calibrate([image], "config.ini", report)
 
 求解成功后，即使质量不达标，结果仍会覆盖 `[calibrate] out_xml`，QA 质量检查图按调试开关保留，供排查问题。
 
-禁止在 `ok=false` 或命令行退出码非 0 后，把该 XML 用于生产测量。此时文件只供诊断，须检查印刷精度、格距实测值和采图条件后重新标定。
+禁止在 `ok=false` 或命令行退出码非 0 后，把该 XML 用于生产测量。此时文件只供诊断，须检查印刷精度、格距实测值和采图条件后重新标定。菜单里如果标定未过门禁，同样不要把该 XML 用于生产测量。
 
 ## 9. 术语说明
 

@@ -16,6 +16,7 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ["pytest==8.3.5"]
+pack = ["pyinstaller==6.22.3"]
 
 [project.scripts]
 checkbord-toolbox = "checkbord_print_calib_toolbox.cli:main"
